@@ -1,10 +1,11 @@
-import type { Topology, TopologyType } from '../types';
-import BusAnimation from '../components/animations/BusAnimation';
-import StarAnimation from '../components/animations/StarAnimation';
-import RingAnimation from '../components/animations/RingAnimation';
-import MeshAnimation from '../components/animations/MeshAnimation';
-import TreeAnimation from '../components/animations/TreeAnimation';
-import HybridAnimation from '../components/animations/HybridAnimation';
+
+import type { Topology, TopologyType } from '../types.ts';
+import BusAnimation from '../components/animations/BusAnimation.tsx';
+import StarAnimation from '../components/animations/StarAnimation.tsx';
+import RingAnimation from '../components/animations/RingAnimation.tsx';
+import MeshAnimation from '../components/animations/MeshAnimation.tsx';
+import TreeAnimation from '../components/animations/TreeAnimation.tsx';
+import HybridAnimation from '../components/animations/HybridAnimation.tsx';
 
 export const TOPOLOGY_TYPES: TopologyType[] = ['Bus', 'Star', 'Ring', 'Mesh', 'Tree', 'Hybrid'];
 

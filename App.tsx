@@ -1,12 +1,13 @@
+
 import React, { useState, useMemo } from 'react';
-import type { TopologyType } from './types';
-import { TOPOLOGIES, TOPOLOGY_TYPES } from './data/topologyData';
-import Header from './components/Header';
-import TopologySelector from './components/TopologySelector';
-import TopologyCard from './components/TopologyCard';
-import ComparisonTable from './components/ComparisonTable';
-import Introduction from './components/Introduction';
-import Conclusion from './components/Conclusion';
+import type { TopologyType } from './types.ts';
+import { TOPOLOGIES, TOPOLOGY_TYPES } from './data/topologyData.ts';
+import Header from './components/Header.tsx';
+import TopologySelector from './components/TopologySelector.tsx';
+import TopologyCard from './components/TopologyCard.tsx';
+import ComparisonTable from './components/ComparisonTable.tsx';
+import Introduction from './components/Introduction.tsx';
+import Conclusion from './components/Conclusion.tsx';
 
 const App: React.FC = () => {
   const [selectedTopology, setSelectedTopology] = useState<TopologyType>('Bus');

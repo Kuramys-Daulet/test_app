@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { TopologyType } from '../types';
+import type { TopologyType } from '../types.ts';
 
 interface TopologySelectorProps {
   types: TopologyType[];

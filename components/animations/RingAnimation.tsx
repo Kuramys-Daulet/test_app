@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { PlayIcon } from '../icons/Icons';
+import { PlayIcon } from '../icons/Icons.tsx';
 
 const positions = [
     { top: '50%', left: '0%', transform: 'translate(-50%, -50%)' },   // Left

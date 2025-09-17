@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { PlayIcon } from '../icons/Icons';
+import { PlayIcon } from '../icons/Icons.tsx';
 
 const positions: { [key: string]: { top: string, left: string } } = {
   root: { top: '10%', left: '50%' },

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { PlayIcon } from '../icons/Icons';
+import { PlayIcon } from '../icons/Icons.tsx';
 
 const BusAnimation: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState(false);

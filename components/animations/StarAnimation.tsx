@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { PlayIcon } from '../icons/Icons';
+import { PlayIcon } from '../icons/Icons.tsx';
 
 const nodes = [
     { id: 1, top: '0%', left: '50%' },

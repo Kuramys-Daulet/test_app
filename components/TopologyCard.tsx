@@ -1,6 +1,7 @@
+
 import React from 'react';
-import type { Topology } from '../types';
-import { CheckCircleIcon, XCircleIcon } from './icons/Icons';
+import type { Topology } from '../types.ts';
+import { CheckCircleIcon, XCircleIcon } from './icons/Icons.tsx';
 
 interface TopologyCardProps {
   topology: Topology;
