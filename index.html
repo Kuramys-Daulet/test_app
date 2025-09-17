@@ -21,21 +21,679 @@
         animation: pulse 1.5s infinite;
       }
     </style>
+    <!-- React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for in-browser JSX and TypeScript transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.1.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/"
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1"
   }
 }
 </script>
-<!-- Add Babel for in-browser JSX and TypeScript transpilation -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
   <body class="bg-slate-900 text-gray-200">
     <div id="root"></div>
-    <!-- Change script type to text/babel to be processed by Babel -->
-    <script type="text/babel" data-type="module" src="./index.tsx"></script>
+
+    <script type="text/babel">
+      const { useState, useEffect, useMemo, StrictMode } = React;
+
+      // =============================================
+      // INLINED: components/icons/Icons.tsx
+      // =============================================
+      const CheckCircleIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+
+      const XCircleIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+
+      const PlayIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+              <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.742 1.295 2.545 0 3.286L7.279 20.99c-1.25.717-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
+          </svg>
+      );
+
+
+      // =============================================
+      // INLINED: components/animations/BusAnimation.tsx
+      // =============================================
+      const BusAnimation = () => {
+          const [isAnimating, setIsAnimating] = useState(false);
+          const [packetPosition, setPacketPosition] = useState(-10); // Start off-screen
+
+          useEffect(() => {
+              let animationFrameId;
+              if (isAnimating) {
+                  const startTime = Date.now();
+                  const duration = 4000; // 4 seconds animation
+
+                  const animate = () => {
+                      const elapsed = Date.now() - startTime;
+                      const progress = elapsed / duration;
+                      
+                      if (progress < 1) {
+                          setPacketPosition(progress * 110); // Move from -10% to 100%
+                          animationFrameId = requestAnimationFrame(animate);
+                      } else {
+                          setIsAnimating(false);
+                          setPacketPosition(-10);
+                      }
+                  };
+                  animationFrameId = requestAnimationFrame(animate);
+              }
+              return () => cancelAnimationFrame(animationFrameId);
+          }, [isAnimating]);
+
+          return (
+              <div className="w-full flex flex-col items-center justify-center space-y-4 h-full p-4">
+                  <div className="relative w-full max-w-sm h-32">
+                      <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-600 rounded-full" style={{ transform: 'translateY(-50%)' }}></div>
+                      <div className="absolute top-1/2 left-0 w-2 h-4 bg-yellow-400 rounded-sm" style={{ transform: 'translate(-100%, -50%)' }}></div>
+                      <div className="absolute top-1/2 right-0 w-2 h-4 bg-yellow-400 rounded-sm" style={{ transform: 'translate(100%, -50%)' }}></div>
+                      {[10, 35, 60, 85].map((pos, index) => (
+                          <div key={index} className="absolute top-1/2" style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}>
+                              <div className="absolute bottom-0 w-1 h-6 bg-slate-600"></div>
+                              <div className="w-8 h-8 bg-slate-700 border-2 border-cyan-500 rounded-full flex items-center justify-center -translate-y-12">
+                                  <span className="text-xs font-bold">{index + 1}</span>
+                              </div>
+                          </div>
+                      ))}
+                      {isAnimating && (
+                          <div className="absolute top-1/2 w-4 h-4 bg-lime-400 rounded-full shadow-lg shadow-lime-400/50" style={{ left: `${packetPosition}%`, transform: 'translate(-50%, -50%)' }}></div>
+                      )}
+                  </div>
+                  <button
+                      onClick={() => !isAnimating && setIsAnimating(true)}
+                      disabled={isAnimating}
+                      className="mt-4 flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                      <PlayIcon className="w-5 h-5 mr-2"/>
+                      {isAnimating ? 'Жіберу...' : 'Анимацияны іске қосу'}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2">1-түйіннен келген пакет барлығына жіберіледі, бірақ, мысалы, 4-түйінге арналған.</p>
+              </div>
+          );
+      };
+
+      // =============================================
+      // INLINED: components/animations/StarAnimation.tsx
+      // =============================================
+      const StarAnimation = () => {
+          const nodes = [
+              { id: 1, top: '0%', left: '50%' },
+              { id: 2, top: '30%', left: '95%' },
+              { id: 3, top: '80%', left: '80%' },
+              { id: 4, top: '80%', left: '20%' },
+              { id: 5, top: '30%', left: '5%' },
+          ];
+          const [animationStep, setAnimationStep] = useState(0);
+
+          const runAnimation = () => {
+              if (animationStep !== 0) return;
+              setAnimationStep(1); // Node 5 to Hub
+              setTimeout(() => setAnimationStep(2), 1500); // Hub to Node 2
+              setTimeout(() => setAnimationStep(0), 3000); // Reset
+          };
+          
+          const getPacketStyle = () => {
+              const baseStyle = {
+                  position: 'absolute',
+                  width: '1rem',
+                  height: '1rem',
+                  backgroundColor: '#a3e635',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 10px #a3e635',
+                  transition: 'all 1.5s ease-in-out',
+                  zIndex: 20,
+              };
+
+              switch (animationStep) {
+                  case 1: return { ...baseStyle, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+                  case 2: return { ...baseStyle, top: '30%', left: '95%', transform: 'translate(-50%, -50%)' };
+                  default: return { ...baseStyle, top: '30%', left: '5%', transform: 'translate(-50%, -50%)' };
+              }
+          };
+
+          return (
+              <div className="w-full flex flex-col items-center justify-center space-y-4 h-full p-4">
+                  <div className="relative w-64 h-64">
+                      <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-slate-700 border-2 border-yellow-400 rounded-lg flex items-center justify-center -translate-x-1/2 -translate-y-1/2 z-10">
+                          <span className="text-xs font-bold">ХАБ</span>
+                      </div>
+                      {nodes.map(node => (
+                          <React.Fragment key={node.id}>
+                              <div
+                                  className="absolute bg-slate-700 w-10 h-10 border-2 border-cyan-500 rounded-full flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
+                                  style={{ top: node.top, left: node.left }}
+                              >
+                                  <span className="text-sm font-bold">{node.id}</span>
+                              </div>
+                              <svg className="absolute top-0 left-0 w-full h-full" style={{ zIndex: 0 }}>
+                                  <line x1="50%" y1="50%" x2={node.left} y2={node.top} stroke="#475569" strokeWidth="2" />
+                              </svg>
+                          </React.Fragment>
+                      ))}
+                      <div style={getPacketStyle()}></div>
+                  </div>
+                   <button
+                      onClick={runAnimation}
+                      disabled={animationStep !== 0}
+                      className="mt-4 flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                      <PlayIcon className="w-5 h-5 mr-2"/>
+                      {animationStep !== 0 ? 'Жіберу...' : 'Анимацияны іске қосу'}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2 text-center">5-түйіннен келген пакет хабқа барады, содан кейін 2-түйінге қайта бағытталады.</p>
+              </div>
+          );
+      };
+
+      // =============================================
+      // INLINED: components/animations/RingAnimation.tsx
+      // =============================================
+      const RingAnimation = () => {
+          const positions = [
+              { top: '50%', left: '0%', transform: 'translate(-50%, -50%)' },
+              { top: '10%', left: '25%', transform: 'translate(-50%, -50%)' },
+              { top: '10%', left: '75%', transform: 'translate(-50%, -50%)' },
+              { top: '50%', left: '100%', transform: 'translate(-50%, -50%)' },
+              { top: '90%', left: '75%', transform: 'translate(-50%, -50%)' },
+              { top: '90%', left: '25%', transform: 'translate(-50%, -50%)' },
+          ];
+          const [isAnimating, setIsAnimating] = useState(false);
+          const [packetIndex, setPacketIndex] = useState(0);
+
+          useEffect(() => {
+              let intervalId;
+              if (isAnimating) {
+                  setPacketIndex(0);
+                  intervalId = setInterval(() => {
+                      setPacketIndex(prevIndex => {
+                          const nextIndex = prevIndex + 1;
+                          if (nextIndex >= positions.length) {
+                              clearInterval(intervalId);
+                              setIsAnimating(false);
+                              return 0;
+                          }
+                          return nextIndex;
+                      });
+                  }, 1000);
+              }
+              return () => clearInterval(intervalId);
+          }, [isAnimating]);
+          
+          return (
+              <div className="w-full flex flex-col items-center justify-center space-y-4 h-full p-4">
+                  <div className="relative w-64 h-64">
+                      <div className="absolute top-1/2 left-1/2 w-[90%] h-[90%] border-2 border-slate-600 rounded-full" style={{transform: 'translate(-50%, -50%)'}}></div>
+                      {positions.map((pos, index) => (
+                          <div
+                              key={index}
+                              className="absolute bg-slate-700 w-10 h-10 border-2 border-cyan-500 rounded-full flex items-center justify-center"
+                              style={pos}
+                          >
+                              <span className="text-sm font-bold">{index + 1}</span>
+                          </div>
+                      ))}
+                      <div 
+                          className="absolute w-4 h-4 bg-lime-400 rounded-full shadow-lg shadow-lime-400/50 transition-all duration-700 ease-in-out"
+                          style={isAnimating ? positions[packetIndex] : positions[0]}
+                      ></div>
+                  </div>
+                   <button
+                      onClick={() => !isAnimating && setIsAnimating(true)}
+                      disabled={isAnimating}
+                      className="mt-4 flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                      <PlayIcon className="w-5 h-5 mr-2"/>
+                      {isAnimating ? 'Жіберу...' : 'Анимацияны іске қосу'}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2 text-center">1-түйіннен келген пакет барлық түйіндер арқылы өтіп, сақина бойымен 4-түйінге дейін барады.</p>
+              </div>
+          );
+      };
+
+      // =============================================
+      // INLINED: components/animations/MeshAnimation.tsx
+      // =============================================
+      const MeshAnimation = () => {
+          const nodes = [
+              { id: 1, top: '10%', left: '10%' },
+              { id: 2, top: '10%', left: '90%' },
+              { id: 3, top: '50%', left: '50%' },
+              { id: 4, top: '90%', left: '10%' },
+              { id: 5, top: '90%', left: '90%' },
+          ];
+          const [animationStep, setAnimationStep] = useState(0);
+
+          const runAnimation = () => {
+              if (animationStep !== 0) return;
+              setAnimationStep(1); // Node 1 to 5 (direct)
+              setTimeout(() => setAnimationStep(2), 2000); // Node 1 to 4 to 5 (indirect)
+              setTimeout(() => setAnimationStep(0), 4000); // Reset
+          };
+
+          const getPacketStyle = () => {
+              const baseStyle = {
+                  position: 'absolute',
+                  width: '1rem',
+                  height: '1rem',
+                  borderRadius: '50%',
+                  transition: 'all 2s ease-in-out',
+                  zIndex: 20,
+              };
+              switch (animationStep) {
+                  case 1: return { ...baseStyle, top: '90%', left: '90%', backgroundColor: '#a3e635', boxShadow: '0 0 10px #a3e635' };
+                  case 2: return { ...baseStyle, top: '90%', left: '90%', backgroundColor: '#f97316', boxShadow: '0 0 10px #f97316', transition: 'all 2s linear' };
+                  default: return { ...baseStyle, top: '10%', left: '10%', backgroundColor: '#a3e635', boxShadow: '0 0 10px #a3e635' };
+              }
+          };
+
+          return (
+              <div className="w-full flex flex-col items-center justify-center space-y-4 h-full p-4">
+                  <div className="relative w-64 h-64">
+                      <svg className="absolute top-0 left-0 w-full h-full z-0" >
+                          {nodes.map((startNode, i) =>
+                              nodes.slice(i + 1).map(endNode => (
+                                  <line key={`${startNode.id}-${endNode.id}`} x1={startNode.left} y1={startNode.top} x2={endNode.left} y2={endNode.top} stroke="#475569" strokeWidth="2" />
+                              ))
+                          )}
+                      </svg>
+                      {nodes.map(node => (
+                          <div key={node.id}
+                              className="absolute bg-slate-700 w-10 h-10 border-2 border-cyan-500 rounded-full flex items-center justify-center -translate-x-1/2 -translate-y-1/2 z-10"
+                              style={{ top: node.top, left: node.left }}>
+                              <span className="text-sm font-bold">{node.id}</span>
+                          </div>
+                      ))}
+                      <div style={getPacketStyle()}></div>
+                  </div>
+                   <button
+                      onClick={runAnimation}
+                      disabled={animationStep !== 0}
+                      className="mt-4 flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                      <PlayIcon className="w-5 h-5 mr-2"/>
+                      {animationStep !== 0 ? 'Жіберу...' : 'Анимацияны іске қосу'}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2 text-center max-w-xs">1-түйіннен 5-түйінге дейін. Алдымен тікелей жол көрсетіледі, егер ол қолжетімсіз болса, балама жол көрсетіледі.</p>
+              </div>
+          );
+      };
+
+      // =============================================
+      // INLINED: components/animations/TreeAnimation.tsx
+      // =============================================
+      const TreeAnimation = () => {
+          const positions = {
+            root: { top: '10%', left: '50%' },
+            hub1: { top: '40%', left: '25%' },
+            hub2: { top: '40%', left: '75%' },
+            node1_1: { top: '70%', left: '10%' },
+            node1_2: { top: '70%', left: '40%' },
+            node2_1: { top: '70%', left: '60%' },
+            node2_2: { top: '70%', left: '90%' },
+          };
+          const lines = [
+            { from: 'root', to: 'hub1' }, { from: 'root', to: 'hub2' },
+            { from: 'hub1', to: 'node1_1' }, { from: 'hub1', to: 'node1_2' },
+            { from: 'hub2', to: 'node2_1' }, { from: 'hub2', to: 'node2_2' },
+          ];
+          const [animationStep, setAnimationStep] = useState(0);
+
+          const runAnimation = () => {
+              if (animationStep !== 0) return;
+              setAnimationStep(1); setTimeout(() => setAnimationStep(2), 1000);
+              setTimeout(() => setAnimationStep(3), 2000); setTimeout(() => setAnimationStep(4), 3000);
+              setTimeout(() => setAnimationStep(0), 4000);
+          };
+
+          const getPacketStyle = () => {
+              const baseStyle = {
+                  position: 'absolute', width: '0.8rem', height: '0.8rem',
+                  backgroundColor: '#a3e635', borderRadius: '50%', boxShadow: '0 0 10px #a3e635',
+                  transition: 'all 1s ease-in-out', zIndex: 20, transform: 'translate(-50%, -50%)',
+              };
+              switch (animationStep) {
+                  case 1: return { ...baseStyle, ...positions.hub1 };
+                  case 2: return { ...baseStyle, ...positions.root };
+                  case 3: return { ...baseStyle, ...positions.hub2 };
+                  case 4: return { ...baseStyle, ...positions.node2_1 };
+                  default: return { ...baseStyle, ...positions.node1_2 };
+              }
+          };
+
+          return (
+              <div className="w-full flex flex-col items-center justify-center space-y-4 h-full p-4">
+                  <div className="relative w-72 h-72">
+                       <svg className="absolute top-0 left-0 w-full h-full z-0">
+                          {lines.map((line, i) => (
+                              <line key={i} x1={positions[line.from].left} y1={positions[line.from].top} x2={positions[line.to].left} y2={positions[line.to].top} stroke="#475569" strokeWidth="2" />
+                          ))}
+                      </svg>
+                      {Object.entries(positions).map(([key, pos]) => (
+                          <div key={key}
+                               className={`absolute border-2 rounded-full flex items-center justify-center -translate-x-1/2 -translate-y-1/2 z-10 ${key.includes('node') ? 'w-8 h-8 bg-slate-700 border-cyan-500' : 'w-10 h-10 bg-slate-600 border-yellow-400'}`}
+                               style={pos}>
+                              <span className="text-xs font-bold">
+                                  {key.includes('node') ? `ДК` : key.includes('hub') ? 'HUB' : 'ROOT'}
+                              </span>
+                          </div>
+                      ))}
+                      <div style={getPacketStyle()}></div>
+                  </div>
+                  <button
+                      onClick={runAnimation}
+                      disabled={animationStep !== 0}
+                      className="mt-4 flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                      <PlayIcon className="w-5 h-5 mr-2"/>
+                      {animationStep !== 0 ? 'Жіберу...' : 'Анимацияны іске қосу'}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2 text-center">ДК-дан (сол жақта) келген пакет иерархия бойынша ROOT-қа көтеріліп, содан кейін ДК-ға (оң жақта) түседі.</p>
+              </div>
+          );
+      };
+
+      // =============================================
+      // INLINED: components/animations/HybridAnimation.tsx
+      // =============================================
+      const HybridAnimation = () => {
+          return (
+              <div className="w-full h-full flex flex-col items-center justify-center p-4">
+                  <h4 className="text-lg font-bold text-cyan-400 mb-4">Мысал: Жұлдыз-Шина</h4>
+                  <div className="relative w-full max-w-md h-64">
+                      <div className="absolute top-1/2 left-0 w-full h-1.5 bg-slate-600 rounded-full -translate-y-1/2"></div>
+                      <div className="absolute top-1/2 left-[25%] -translate-x-1/2 -translate-y-1/2">
+                          <div className="w-10 h-10 bg-slate-700 border-2 border-yellow-400 rounded-md flex items-center justify-center text-xs font-bold">ХАБ</div>
+                          <svg className="absolute w-32 h-32 -top-14 -left-14 opacity-50">
+                              <line x1="50%" y1="50%" x2="10%" y2="10%" stroke="#475569" strokeWidth="2" />
+                              <line x1="50%" y1="50%" x2="90%" y2="10%" stroke="#475569" strokeWidth="2" />
+                              <line x1="50%" y1="50%" x2="50%" y2="90%" stroke="#475569" strokeWidth="2" />
+                          </svg>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full top-[-35px] left-[-35px]"></div>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full top-[-35px] right-[-35px]"></div>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full bottom-[-35px] left-1/2 -translate-x-1/2"></div>
+                      </div>
+                       <div className="absolute top-1/2 left-[75%] -translate-x-1/2 -translate-y-1/2">
+                          <div className="w-10 h-10 bg-slate-700 border-2 border-yellow-400 rounded-md flex items-center justify-center text-xs font-bold">ХАБ</div>
+                          <svg className="absolute w-32 h-32 -top-14 -left-14 opacity-50">
+                              <line x1="50%" y1="50%" x2="10%" y2="10%" stroke="#475569" strokeWidth="2" />
+                              <line x1="50%" y1="50%" x2="90%" y2="10%" stroke="#475569" strokeWidth="2" />
+                              <line x1="50%" y1="50%" x2="50%" y2="90%" stroke="#475569" strokeWidth="2" />
+                          </svg>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full top-[-35px] left-[-35px]"></div>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full top-[-35px] right-[-35px]"></div>
+                          <div className="absolute w-6 h-6 bg-cyan-500 rounded-full bottom-[-35px] left-1/2 -translate-x-1/2"></div>
+                      </div>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-8 text-center">Бұл екі "Жұлдыз" желісінің ортақ "Шинамен" жалғанғанын<br />көрсететін статикалық сызба.</p>
+              </div>
+          );
+      };
+
+
+      // =============================================
+      // INLINED: data/topologyData.ts
+      // =============================================
+      const TOPOLOGY_TYPES = ['Bus', 'Star', 'Ring', 'Mesh', 'Tree', 'Hybrid'];
+      const TOPOLOGIES = [
+        { id: 'Bus', name: 'Шина (Bus Topology)', description: 'Бұл топологияда барлық құрылғылар (компьютерлер, принтерлер және т.б.) **шина** немесе **магистраль** деп аталатын бір ортақ кабельге қосылған. Бұл кабельдің ұштарында сигналдың шағылысуын болдырмай, оны сіңіретін арнайы бітеуіштер — **терминаторлар** бар.', dataTransmission: 'Бір компьютер деректерді жібергенде, бұл сигнал шинаның бүкіл ұзындығы бойынша екі жаққа да таралады. Барлық басқа құрылғылар бұл сигналды "естиді", бірақ оны тек өзіне арналған құрылғы ғана қабылдайды. Бір мезетте деректерді тек бір құрылғы ғана жібере алады, әйтпесе **коллизия** (сигналдардың соқтығысуы) пайда болады.', advantages: ['**Орнатудың қарапайымдылығы және арзандығы:** Ең аз кабель мөлшері қажет.', '**Жаңа құрылғыларды қосудың оңайлығы:** Жаңа құрылғыны шинаның кез келген бос жеріне қосуға болады.',], disadvantages: ['**Сенімділіктің төмендігі:** Негізгі кабельдің (шинаның) зақымдануы бүкіл желіні істен шығарады.', '**Ақауларды табудың қиындығы:** Қай компьютер немесе кабельдің қай бөлігі мәселе тудырып тұрғанын анықтау қиын.', '**Өнімділіктің төмендеуі:** Желіде құрылғылар неғұрлым көп болса, соғұрлым коллизиялар жиі болады және желі баяу жұмыс істейді.',], analogy: 'Жаңа жылдық гирлянда сияқты, онда барлық шамдар (құрылғылар) бір ортақ сымға ілінген. Егер сымды кез келген жерден кессе, бүкіл гирлянда сөніп қалады.', visualizationIdea: 'Тік сызық (шина), одан компьютер белгішелеріне қарай қысқа сызықтар тарайды.', AnimationComponent: BusAnimation },
+        { id: 'Star', name: 'Жұлдыз (Star Topology)', description: 'Бұл бүгінгі күні ең танымал топология. Желінің ортасында арнайы құрылғы — **концентратор (хаб)** немесе одан да заманауи **коммутатор (свитч)** орналасқан. Желідегі әрбір компьютер осы орталық құрылғыға жеке кабель арқылы қосылады.', dataTransmission: 'Компьютер деректерді жібергенде, оларды барлығына емес, тек орталық құрылғыға жібереді. Ал ол өз кезегінде бұл деректерді нақты алушыға қайта бағыттайды. Бұл "шинаға" қарағанда әлдеқайда ақылды және бірнеше жұп құрылғының бір уақытта байланысуына мүмкіндік береді (коммутатор жағдайында).', advantages: ['**Жоғары сенімділік:** Бір компьютердің істен шығуы немесе оның кабелінің зақымдануы қалған желінің жұмысына әсер етпейді.', '**Қызмет көрсетудің қарапайымдылығы:** Ақауды табу оңай, себебі мәселе әдетте компьютерде, оның кабелінде немесе концентратор портында болады.', '**Жақсы өнімділік:** Коллизиялар минимумға дейін азайтылған (коммутатормен), және желі оңай кеңейтіледі.',], disadvantages: ['**Жоғары құн:** "Шинаға" қарағанда көбірек кабель қажет, сонымен қатар орталық құрылғыға кететін шығындар бар.', '**Орталықтандырылған істен шығу нүктесі:** Егер орталық концентратор немесе коммутатор істен шықса, бүкіл желі жұмысын тоқтатады.',], analogy: 'Әуежай-хаб. Барлық ұшақтар (деректер) А қаласынан Б қаласына тікелей ұшпайды, олар рейстерді қажетті бағыттарға бөлетін орталық ірі әуежай (концентратор) арқылы ұшады.', visualizationIdea: 'Ортада коммутатор белгішесі, одан сәулелер тәрізді компьютер белгішелеріне сызықтар тарайды.', AnimationComponent: StarAnimation },
+        { id: 'Ring', name: 'Сақина (Ring Topology)', description: 'Бұл топологияда барлық құрылғылар бір-біріне тізбектей қосылып, тұйықталған **сақина** құрайды. Деректер бір құрылғыдан екіншісіне шеңбер бойымен бір бағытта беріледі.', dataTransmission: 'Ақпарат сақина бойымен әрбір компьютер арқылы қозғалады. Деректерді жібермес бұрын, компьютер желіні "тыңдайды". Егер ол бос болса, ол алушының мекенжайы бар деректер пакетін жібереді. Пакет мекенжайға жеткенше компьютерден компьютерге өтеді. Коллизияларды болдырмау үшін жиі арнайы маркерлік қатынау әдісі қолданылады.', advantages: ['**Тұрақты өнімділік:** Үлкен жүктемелерде де жақсы жұмыс істейді, себебі коллизиялар жоқ.', '**Қарапайымдылық:** Әрбір құрылғы тек екі "көршімен" ғана жалғанған.',], disadvantages: ['**Сенімділіктің төмендігі:** Бір компьютердің істен шығуы немесе кабельдің үзілуі сақинаны бұзып, бүкіл желіні тоқтатады.', '**Қосылудың күрделілігі:** Компьютерді қосу немесе алып тастау үшін бүкіл желінің жұмысын уақытша тоқтатып, сақинаны үзу керек.', '**Беріліс кідірісі:** Сигнал барлық аралық компьютерлерден өтеді, бұл жеткізуді баяулатуы мүмкін.',], analogy: 'Хоровод. Адамдар (құрылғылар) қол ұстасып, затты (деректерді) шеңбер бойымен тек бір бағытта, көршіден көршіге бере алады.', visualizationIdea: 'Шеңбер бойымен орналасқан және сызықтармен қосылған компьютерлер.', AnimationComponent: RingAnimation },
+        { id: 'Mesh', name: 'Тор (Mesh Topology)', description: '**Толық байланысқан (Full Mesh)** топологияда желідегі әрбір құрылғы басқаларының барлығымен тікелей жалғанған. **Ішінара байланысқан (Partial Mesh)** топологияда кейбір құрылғылар барлығымен, ал кейбіреулері тек ең маңызды немесе ең жақын түйіндермен жалғанған.', dataTransmission: 'Деректер жіберушіден алушыға көптеген әртүрлі жолдармен жетуі мүмкін. Желі ең қысқа немесе ең аз жүктелген маршрутты автоматты түрде таңдай алады. Егер жолдардың бірі үзілсе, деректер жай ғана басқа жолмен кетеді.', advantages: ['**Максималды сенімділік және істен шығуға төзімділік:** Бір байланыстың немесе тіпті құрылғының істен шығуы жалпы желінің жұмысына әсер етпейді.', '**Жоғары жылдамдық:** Деректер тікелей және қысқа жолдармен беріледі.',], disadvantages: ['**Өте жоғары құн және күрделілік:** Өте көп кабельдер мен қосылу порттарын қажет етеді. Баптауда өте күрделі.', '**Кеңейтудің күрделілігі:** Жаңа құрылғыны қосу оны барлық бұрыннан бар құрылғылармен жалғауды талап етеді.',], analogy: 'Өрмекші торы немесе әлеуметтік желі. Әрбір нүкте (адам/құрылғы) басқа көптеген нүктелермен тікелей байланысты болуы мүмкін, бұл күрделі және берік құрылымды жасайды. Ақпарат мақсатқа жету үшін көптеген жолдарды таба алады.', visualizationIdea: 'Бірнеше компьютер, әрқайсысынан әрқайсысына байланыс сызығы тартылған.', AnimationComponent: MeshAnimation },
+        { id: 'Tree', name: 'Ағаш (Tree Topology)', description: 'Бұл топология "жұлдыз" және "шина" топологияларының комбинациясы болып табылады. Оның иерархиялық құрылымы бар. Бас **түбірлік түйін** бар, одан басқа түйіндерге (мысалы, концентраторларға) тармақтар тарайды, ал олар өз кезегінде одан әрі тармақталады.', dataTransmission: 'Деректер иерархия бойынша ортақ түйінге дейін жоғары беріледі, содан кейін мақсатты құрылғыға қарай төмен түседі. Шын мәнінде, бұл бір-біріне қосылған бірнеше "жұлдыз".', advantages: ['**Жақсы кеңейтілу:** Желінің жаңа сегменттерін (жаңа "жұлдыздарды") қосу оңай.', '**Басқарудың және ақауларды табудың қарапайымдылығы:** Желі логикалық сегменттерге бөлінген, бұл әкімшілендіруді жеңілдетеді.',], disadvantages: ['**Түбірге тәуелділік:** Егер түбірлік түйін немесе негізгі магистраль істен шықса, желінің үлкен сегменттері қолжетімсіз болады.', '**Күрделілік және құн:** "Жұлдыз" немесе "шинаға" қарағанда көбірек кабель және күрделірек баптауды қажет етеді.',], analogy: 'Генеалогиялық ағаш. Бас "ата-баба" (түбірлік түйін) бар, одан "балаларға" (аралық түйіндер) тармақтар тарайды, ал олардан — "немерелерге" (соңғы құрылғылар).', visualizationIdea: 'Төңкерілген ағашқа ұқсайтын иерархиялық құрылым.', AnimationComponent: TreeAnimation },
+        { id: 'Hybrid', name: 'Гибридті (Hybrid Topology)', description: 'Атауынан көрініп тұрғандай, бұл екі немесе одан да көп әртүрлі топологиялардың комбинациясы. Мысалы, бір кеңседе "жұлдыз" желісі, екіншісінде де "жұлдыз" болуы мүмкін, ал бұл екі "жұлдыз" бір-бірімен ортақ "шинамен" жалғанған.', dataTransmission: 'Беріліс принципі жіберуші мен алушының желінің қай сегментінде орналасқанына байланысты. Әрбір сегменттің ішінде оның өз топологиясының ережелері қолданылады.', advantages: ['**Икемділік:** Әртүрлі топологиялардың күшті жақтарын пайдаланып, олардың кемшіліктерін жоюға болады.', '**Кеңейтілу:** Сәйкес топологиясы бар жаңа сегменттерді қосу арқылы желіні кеңейту өте оңай.',], disadvantages: ['**Жобалау мен басқарудың күрделілігі:** Дұрыс құру және әкімшілендіру үшін терең білімді қажет етеді.', '**Жоғары құн:** Әдетте күрделі желілік жабдықты қажет ететіндіктен, ең қымбат нұсқалардың бірі болып табылады.',], analogy: 'Заманауи қала. Тұрғын аудандарда бір қозғалыс сызбасы ("жұлдыз") болуы мүмкін, ал олар бір-бірімен жылдамдығы жоғары магистральдармен ("шина") жалғанады.', visualizationIdea: 'Мысалы, екі "жұлдыз" құрылымының бір "шина" сызығына қалай қосылғанын көрсететін сызба.', AnimationComponent: HybridAnimation },
+      ];
+
+
+      // =============================================
+      // INLINED: components/Header.tsx
+      // =============================================
+      const Header = () => {
+        return (
+          <header className="text-center border-b-2 border-cyan-500 pb-4">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+              Интерактивті нұсқаулық:{' '}
+              <span className="text-cyan-400">желі топологиялары</span>
+            </h1>
+            <p className="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">
+              Күрделі техникалық тұжырымдамаларды көрнекі анимациялармен қарапайым және түсінікті тілде түсіндіреміз.
+            </p>
+          </header>
+        );
+      };
+
+      // =============================================
+      // INLINED: components/Introduction.tsx
+      // =============================================
+      const Introduction = () => {
+        return (
+          <section className="bg-slate-800/50 rounded-lg p-6 text-center">
+            <h2 className="text-3xl font-bold text-cyan-400 mb-4">Желі топологиясы дегеніміз не?</h2>
+            <p className="text-lg text-slate-300 max-w-4xl mx-auto mb-4">
+              Қарапайым сөзбен айтқанда, <strong>желі топологиясы</strong> — бұл компьютерлер мен басқа құрылғылардың бір-бірімен қалай жалғанғанын көрсететін карта немесе сызба сияқты.
+            </p>
+            <div className="bg-slate-700 p-4 rounded-md italic border-l-4 border-cyan-500 max-w-3xl mx-auto">
+              <p className="text-slate-200">
+                "Қала салып жатырсыз деп елестетіңіз. Топология — бұл үйлердің (компьютерлердің) бір-бірімен қалай байланысатынын анықтайтын жолдардың жоспары."
+              </p>
+            </div>
+            <p className="text-lg text-slate-300 max-w-4xl mx-auto mt-4">
+              Бұл өте маңызды, себебі таңдалған "жол картасына" сіздің желіңіздің қаншалықты жылдам, сенімді және қымбат болатыны, сондай-ақ болашақта оны кеңейтудің қаншалықты оңай болатыны тікелей байланысты.
+            </p>
+          </section>
+        );
+      };
+
+      // =============================================
+      // INLINED: components/Conclusion.tsx
+      // =============================================
+      const Conclusion = () => {
+        return (
+          <section className="mt-16 bg-slate-800/50 rounded-lg p-6 text-center">
+            <h2 className="text-3xl font-bold text-cyan-400 mb-4">Қорытынды</h2>
+            <p className="text-lg text-slate-300 max-w-4xl mx-auto">
+              Барлық жағдайға сәйкес келетін "ең үздік" топология жоқ екенін түсіну маңызды. Олардың әрқайсысының өз артықшылықтары мен кемшіліктері бар.
+            </p>
+            <div className="mt-4 bg-slate-700 p-4 rounded-md italic border-l-4 border-cyan-500 max-w-3xl mx-auto">
+              <p className="text-slate-200">
+                Топологияны таңдау — бұл нақты міндеттерге, бюджетке, сенімділік талаптарына және желіні дамыту жоспарларына байланысты <strong>келісім</strong>.
+              </p>
+            </div>
+          </section>
+        );
+      };
+
+      // =============================================
+      // INLINED: components/TopologySelector.tsx
+      // =============================================
+      const TopologySelector = ({ types, selected, onSelect }) => {
+        return (
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+            {types.map((type) => (
+              <button
+                key={type}
+                onClick={() => onSelect(type)}
+                className={`px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transform ${
+                  selected === type
+                    ? 'bg-cyan-500 text-white shadow-lg scale-110'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white hover:scale-105'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        );
+      };
+
+      // =============================================
+      // INLINED: components/TopologyCard.tsx
+      // =============================================
+      const TopologyCard = ({ topology }) => {
+        const { name, description, dataTransmission, advantages, disadvantages, analogy, AnimationComponent } = topology;
+
+        const createMarkup = (text) => {
+          return { __html: text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400 font-semibold">$1</strong>') };
+        };
+
+        return (
+          <div className="bg-slate-800 rounded-xl shadow-2xl overflow-hidden transition-all duration-500 ease-in-out">
+            <div className="p-6 md:p-8">
+              <h3 className="text-3xl font-bold text-white mb-4">{name}</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-semibold text-lg text-cyan-400 mb-2">Бұл қалай жұмыс істейді?</h4>
+                    <p className="text-slate-300" dangerouslySetInnerHTML={createMarkup(description)} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg text-cyan-400 mb-2">Деректерді беру принципі</h4>
+                    <p className="text-slate-300" dangerouslySetInnerHTML={createMarkup(dataTransmission)} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold text-lg text-green-400 mb-2">Артықшылықтары</h4>
+                      <ul className="space-y-2">
+                        {advantages.map((adv, index) => (
+                          <li key={index} className="flex items-start">
+                            <CheckCircleIcon className="w-5 h-5 text-green-400 mr-2 mt-1 flex-shrink-0" />
+                            <span className="text-slate-300" dangerouslySetInnerHTML={createMarkup(adv)} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg text-red-400 mb-2">Кемшіліктері</h4>
+                      <ul className="space-y-2">
+                        {disadvantages.map((dis, index) => (
+                          <li key={index} className="flex items-start">
+                            <XCircleIcon className="w-5 h-5 text-red-400 mr-2 mt-1 flex-shrink-0" />
+                            <span className="text-slate-300" dangerouslySetInnerHTML={createMarkup(dis)} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                   <div>
+                      <h4 className="font-semibold text-lg text-cyan-400 mb-2">Өмірден алынған аналогия</h4>
+                      <div className="bg-slate-700/50 p-3 rounded-md italic border-l-4 border-cyan-500">
+                          <p className="text-slate-200">{analogy}</p>
+                      </div>
+                  </div>
+                </div>
+                <div className="bg-slate-900 rounded-lg p-4 flex flex-col items-center justify-center min-h-[300px] lg:min-h-[400px]">
+                  <AnimationComponent />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // =============================================
+      // INLINED: components/ComparisonTable.tsx
+      // =============================================
+      const ComparisonTable = () => {
+        const tableData = [
+          { topology: 'Шина', cost: 'Төмен', reliability: 'Төмен', scalability: 'Қиын', troubleshooting: 'Қиын' },
+          { topology: 'Жұлдыз', cost: 'Орташа', reliability: 'Жоғары', scalability: 'Оңай', troubleshooting: 'Оңай' },
+          { topology: 'Сақина', cost: 'Орташа', reliability: 'Төмен', scalability: 'Қиын', troubleshooting: 'Қиын' },
+          { topology: 'Тор', cost: 'Жоғары', reliability: 'Жоғары', scalability: 'Қиын', troubleshooting: 'Қиын' },
+        ];
+        return (
+          <div className="overflow-x-auto bg-slate-800 rounded-lg p-4 shadow-lg">
+            <table className="min-w-full text-sm text-left text-slate-300">
+              <thead className="text-xs text-cyan-400 uppercase bg-slate-700/50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 rounded-l-lg">Топология</th>
+                  <th scope="col" className="px-6 py-3">Орнату құны</th>
+                  <th scope="col" className="px-6 py-3">Сенімділік</th>
+                  <th scope="col" className="px-6 py-3">Кеңейтілуі</th>
+                  <th scope="col" className="px-6 py-3 rounded-r-lg">Ақауларды жою күрделілігі</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((row, index) => (
+                  <tr key={index} className="border-b border-slate-700 hover:bg-slate-700/50">
+                    <th scope="row" className="px-6 py-4 font-medium text-white whitespace-nowrap">
+                      {row.topology}
+                    </th>
+                    <td className="px-6 py-4">{row.cost}</td>
+                    <td className="px-6 py-4">{row.reliability}</td>
+                    <td className="px-6 py-4">{row.scalability}</td>
+                    <td className="px-6 py-4">{row.troubleshooting}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      };
+
+      // =============================================
+      // INLINED: App.tsx
+      // =============================================
+      const App = () => {
+        const [selectedTopology, setSelectedTopology] = useState('Bus');
+
+        const currentTopologyData = useMemo(() => {
+          return TOPOLOGIES.find(t => t.id === selectedTopology);
+        }, [selectedTopology]);
+
+        return (
+          <div className="min-h-screen bg-slate-900 text-gray-200 font-sans p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+              <Header />
+              <main className="mt-8">
+                <Introduction />
+                
+                <section className="mt-12">
+                  <h2 className="text-3xl font-bold text-center text-cyan-400 mb-8">Топологиялардың негізгі түрлері</h2>
+                  <TopologySelector 
+                    types={TOPOLOGY_TYPES} 
+                    selected={selectedTopology} 
+                    onSelect={setSelectedTopology} 
+                  />
+                  
+                  <div className="mt-8">
+                    {currentTopologyData && <TopologyCard topology={currentTopologyData} />}
+                  </div>
+                </section>
+
+                <section className="mt-16">
+                  <h2 className="text-3xl font-bold text-center text-cyan-400 mb-8">Салыстыру кестесі</h2>
+                  <ComparisonTable />
+                </section>
+
+                <Conclusion />
+              </main>
+            </div>
+          </div>
+        );
+      };
+
+      // =============================================
+      // INLINED: index.tsx (Render logic)
+      // =============================================
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        <StrictMode>
+          <App />
+        </StrictMode>
+      );
+    </script>
   </body>
 </html>
