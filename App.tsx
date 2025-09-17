@@ -43,6 +43,9 @@ const App: React.FC = () => {
 
           <Conclusion />
         </main>
+        <footer className="mt-16 py-4 border-t border-slate-700 text-center text-sm text-slate-500">
+          Автор: Құрамыс Дәулет Төлегенұлы
+        </footer>
       </div>
     </div>
   );
